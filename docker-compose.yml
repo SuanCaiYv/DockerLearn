@@ -4,26 +4,29 @@ services:
   web:
     build:
       context: .
+      dockerfile: dockerfile-web
     depends_on:
       - redis
     ports:
-      - "8190:8190"
+      - "18190:8190"
     networks:
-      docker-learn:
+      - docker_learn
     tty: true
+    restart: on-failure
   redis:
     image: redis:alpine
     ports:
-      - "6379:6379"
+      - "16379:6379"
     volumes:
-      - redis-volume:/data
+      - redis_volume:/data
     environment:
       - REDIS_PASSWORD=""
     networks:
-      - docker-learn
+      - docker_learn
     restart: always
     command: redis-server --appendonly yes
 networks:
-  docker-learn:
+  docker_learn:
+    driver: bridge
 volumes:
-  redis-volume:
+  redis_volume:

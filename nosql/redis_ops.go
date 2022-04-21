@@ -54,7 +54,9 @@ func newRedisClient() {
 		DB:       0,
 	})
 	err := client.Ping(context.Background()).Err()
-	fmt.Println(err)
+	if err != nil {
+		fmt.Println(err)
+	}
 	ctx := context.Background()
 	instanceRedisClient = &RedisClient{
 		client,
