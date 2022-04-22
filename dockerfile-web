@@ -1,10 +1,21 @@
 FROM golang:alpine as builder
+# 定义当前的工作目录，以下所有操作均默认在当前目录执行
 WORKDIR /src
+# 这里的'.'表示构建上下文，即docker build 指令指定的上下文，如无特别说明，则是指dockerfile所在的目录
+# COPY可以直接复制一整个文件或目录
 COPY . /src/
+# RUN指令用于在构建时执行一些操作，如果构建过程中出现错误，则会中断构建
 RUN cd cmd \
     && go build main.go
 
+# 多阶段构建，好处在于下一个阶段仅使用上阶段的构建结果，可以大幅缩减镜像体积
 FROM alpine:latest as exe
 WORKDIR /target
+# 这里指定从上一个构建结果中复制，同时指出具体复制的文件
 COPY --from=builder /src/cmd/main /target/
+# 声明服务暴露的端口，当然在docker run中可以重新映射
+EXPOSE 8190
+# CMD执行部署之后，运行需要执行的指令
+# ENTRYPOINT指定启动的入口，可以是一个命令，也可以是一个脚本，和CMD的区别在于，CMD会被docker run后面的指令覆盖，CMD作为默认指令存在
+# ENTRYPOINT则不会发生覆盖
 CMD ./main

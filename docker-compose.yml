@@ -1,29 +1,38 @@
 version: '3'
 
 services:
+  # 定义多个服务
   web:
+    # 指出服务构建使用的dockerfile
     build:
       context: .
       dockerfile: dockerfile-web
+    # 指出服务依赖项，但是不会等依赖项完全启动再启动，所以最好加上失败重启机制
     depends_on:
       - redis
+    # 指出服务的端口映射
     ports:
       - "18190:8190"
+    # 指出服务使用的网络，如果需要依赖另一个服务，要确保它们处于同一个网络
     networks:
       - docker_learn
+    # 确保服务不会退出
     tty: true
     restart: on-failure
   redis:
     image: redis:alpine
     ports:
       - "16379:6379"
+    # 对服务需要用到的目录进行卷映射，卷需要提前定义
     volumes:
       - redis_volume:/data
+    # 指出服务启动时的环境变量
     environment:
       - REDIS_PASSWORD=""
     networks:
       - docker_learn
     restart: always
+    # 运行服务的指令
     command: redis-server --appendonly yes
 networks:
   docker_learn:
